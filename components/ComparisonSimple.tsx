@@ -114,7 +114,7 @@ export default function Comparison({ tool, isAdmin = false, onVerify }: Comparis
                         <div className="w-full bg-gray-700 rounded-full h-2">
                             <div
                                 className={`h-2 rounded-full ${tool.realityCheck.stability_score >= 80 ? 'bg-green-500' :
-                                        tool.realityCheck.stability_score >= 60 ? 'bg-yellow-500' : 'bg-red-500'
+                                    tool.realityCheck.stability_score >= 60 ? 'bg-yellow-500' : 'bg-red-500'
                                     }`}
                                 style={{ width: `${tool.realityCheck.stability_score}%` }}
                             ></div>
@@ -157,8 +157,8 @@ export default function Comparison({ tool, isAdmin = false, onVerify }: Comparis
                     <span className="text-sm text-gray-400">Last 7 Days</span>
                 </div>
 
-                <div className="h-32">
-                    <ResponsiveContainer width="100%" height="100%">
+                <div className="h-32 min-h-[128px]">
+                    <ResponsiveContainer width="100%" height={128}>
                         <LineChart data={tool.flakinessData}>
                             <Line
                                 type="monotone"
@@ -193,8 +193,8 @@ export default function Comparison({ tool, isAdmin = false, onVerify }: Comparis
                             onClick={handleVerify}
                             disabled={isVerified}
                             className={`px-6 py-2 rounded-lg font-medium transition-colors ${isVerified
-                                    ? 'bg-green-600 text-white'
-                                    : 'bg-blue-600 text-white hover:bg-blue-700'
+                                ? 'bg-green-600 text-white'
+                                : 'bg-blue-600 text-white hover:bg-blue-700'
                                 }`}
                         >
                             {isVerified ? '✓ Verified' : 'Verify Results'}

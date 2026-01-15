@@ -1,3 +1,4 @@
+"use client"
 import HeroSection from '@/components/HeroSection';
 import Footer from '@/components/Footer';
 import Button from '@/components/Button';

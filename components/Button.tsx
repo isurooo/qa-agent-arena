@@ -1,3 +1,4 @@
+"use client"
 // Create a reusable button component with Tailwind CSS
 // Props: text, onClick, type (primary, secondary)
 import React from 'react';

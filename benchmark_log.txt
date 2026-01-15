@@ -1,0 +1,3 @@
+Navigating to http://uitestingplayground.com/click
+Attempting to click button with selector: #badButton
+SUCCESS: Button clicked successfully.

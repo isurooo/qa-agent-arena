@@ -1,0 +1,19 @@
+{
+    "name": "arena-agent",
+    "version": "1.0.0",
+    "description": "The backend agent service for QA Agent Arena",
+    "main": "auditor.ts",
+    "scripts": {
+        "audit": "ts-node auditor.ts"
+    },
+    "dependencies": {
+        "@google/generative-ai": "^0.1.3",
+        "@prisma/client": "^5.22.0",
+        "dotenv": "^16.4.5"
+    },
+    "devDependencies": {
+        "ts-node": "^10.9.2",
+        "typescript": "^5.3.3",
+        "@types/node": "^20.10.6"
+    }
+}

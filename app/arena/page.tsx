@@ -33,6 +33,7 @@ const mockTool = {
     ]
 };
 
+// ...existing code...
 export default function ArenaPage() {
     const handleVerify = (toolId: number) => {
         console.log(`Verifying tool ${toolId}`);
@@ -43,9 +44,16 @@ export default function ArenaPage() {
         <div className="bg-background w-full">
             <div className="container mx-auto py-8">
                 <ComparisonSimple
-                    tool={mockTool}
+                    toolName={mockTool.name}
+                    marketingClaims={mockTool.claims}
+                    auditResults={{
+                        passRate: 0,
+                        stabilityScore: mockTool.realityCheck.stability_score,
+                        hallucinations: mockTool.realityCheck.critical_failures.length
+                    }}
+                    flakinessData={mockTool.flakinessData.map(d => ({ run: d.day, stability: d.flakiness }))}
                     isAdmin={true}
-                    onVerify={handleVerify}
+                    onVerify={() => handleVerify(mockTool.id)}
                 />
             </div>
         </div>

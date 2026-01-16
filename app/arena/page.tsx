@@ -40,7 +40,7 @@ export default function ArenaPage() {
     };
 
     return (
-        <div className="min-h-screen bg-background">
+        <div className="bg-background w-full">
             <div className="container mx-auto py-8">
                 <ComparisonSimple
                     tool={mockTool}

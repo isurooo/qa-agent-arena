@@ -17,10 +17,10 @@ interface ComparisonWrapperProps {
 }
 
 const ComparisonWrapper: React.FC<ComparisonWrapperProps> = ({
-    toolName, 
-    marketingClaims, 
-    auditResults, 
-    flakinessData, 
+    toolName,
+    marketingClaims,
+    auditResults,
+    flakinessData,
     isAdmin,
     runId
 }) => {
@@ -29,7 +29,7 @@ const ComparisonWrapper: React.FC<ComparisonWrapperProps> = ({
     const handleVerify = async () => {
         // Call the server action
         const result = await verifyRun(runId, "AdminUser"); // Mock admin
-        if(result.success) {
+        if (result.success) {
             setIsVerified(true);
             alert("Verification Saved!");
         } else {
@@ -38,21 +38,21 @@ const ComparisonWrapper: React.FC<ComparisonWrapperProps> = ({
     };
 
     return (
-       <div>
-         {isVerified && (
-            <div className="mb-4 p-4 bg-green-500/10 border border-green-500 rounded text-green-500 text-center font-bold">
-                Verification Synced to Database
-            </div>
-         )}
-         <ComparisonSimple 
-            toolName={toolName}
-            marketingClaims={marketingClaims}
-            auditResults={auditResults}
-            flakinessData={flakinessData}
-            isAdmin={isAdmin}
-            onVerify={handleVerify}
-         />
-       </div>
+        <div>
+            {isVerified && (
+                <div className="mb-4 p-4 bg-green-500/10 border border-green-500 rounded text-green-500 text-center font-bold">
+                    Verification Synced to Database
+                </div>
+            )}
+            <ComparisonSimple
+                toolName={toolName}
+                marketingClaims={marketingClaims}
+                auditResults={auditResults}
+                flakinessData={flakinessData}
+                isAdmin={isAdmin}
+                onVerify={handleVerify}
+            />
+        </div>
     );
 }
 

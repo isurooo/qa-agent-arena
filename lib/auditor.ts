@@ -36,11 +36,10 @@ function fallbackAudit(log: string): AuditResult {
         "url changed",
         "confidence:",
         "confidence :", // Handle spacing variations
-        "selector",
+        "selector match",
         "scanned dom",
-        "scanning dom",
-        "#", // Most IDs start with #, good proxy for selectors
-        "." // Classes
+        "scanning dom"
+        // Removed "#" and "." as they are too generic and appear in Action logs
     ];
 
     const lowerLog = log.toLowerCase();

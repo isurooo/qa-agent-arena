@@ -1,4 +1,9 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# QA Agent Arena
+
+## 🚀 Live Demo
+- **URL:** [qaaarena.com](https://qaaarena.com)
+- **Status:** Live & Deployed
+- **Latest Feature:** User Agent Submission System (Connected to Gemini Auditor)
 
 ## Getting Started
 

@@ -19,8 +19,8 @@ interface ComparisonProps {
         hallucinations: number;
     };
     flakinessData: { run: number; stability: number }[];
-    isAdmin: boolean;
-    onVerify: () => void;
+    isAdmin?: boolean;
+    onVerify?: () => void;
 }
 
 const ComparisonSimple: React.FC<ComparisonProps> = ({

@@ -45,11 +45,13 @@ export default async function ArenaPage() {
         ? "The tool demonstrated high resilience."
         : "Significant instability detected. Self-healing mechanisms failed to compensate for DOM shifts.";
 
+    // Parse the JSON logs safely
+    // const auditData: any = {};
+
     return (
         <div className="bg-background w-full">
             <div className="container mx-auto py-8">
                 <ComparisonSimple
-                    // @ts-ignore
                     toolName={latestRun.tool.name}
                     marketingClaims={[
                         "99.9% Reliability Claimed",

@@ -119,27 +119,50 @@ async function runAuditor() {
         return;
     }
 
-    // In a real loop, we would fetch pending ArenaRuns from DB
-    // const pendingRuns = await prisma.arenaRun.findMany({ where: { status: 'PENDING' } });
+    console.log("🔌 Connecting to Arena Database...");
 
-    console.log("Analyzing sample log...");
-    const audit = await auditLog(SAMPLE_LOG, SAMPLE_BROKEN_DEMO_CONTEXT);
+    // Polling loop
+    while (true) {
+        try {
+            // Find one pending run
+            const pendingRun = await prisma.arenaRun.findFirst({
+                where: { status: 'PENDING' },
+                include: { benchmark: true, tool: true }
+            });
 
-    console.log("\n--- 📝 AUDITOR VERDICT ---");
-    console.log(JSON.stringify(audit, null, 2));
-    console.log("--------------------------\n");
+            if (!pendingRun) {
+                // console.log("💤 No pending runs. Waiting...");
+                await new Promise(r => setTimeout(r, 5000)); // Sleep 5s
+                continue;
+            }
 
-    // Simulate saving to DB
-    /*
-    await prisma.arenaRun.update({
-      where: { id: 1 },
-      data: {
-          stability_score: audit.stability_score,
-          video_url: "http://...",
-          raw_logs: JSON.stringify(audit) // Storing full audit in logs or separate column
-      }
-    });
-    */
+            console.log(`\n🚀 Processing Run #${pendingRun.id} (Tool: ${pendingRun.tool.name})...`);
+
+            // Extract Log (Assuming JSON or String)
+            const rawLog = JSON.stringify(pendingRun.raw_logs);
+            const context = `Scenario: ${pendingRun.benchmark.scenario_name}\nDifficulty: ${pendingRun.benchmark.difficulty_level}`;
+
+            // Run Audit
+            const audit = await auditLog(rawLog, context);
+
+            console.log(`✅ Audit Complete. Score: ${audit.stability_score}. Verdict: ${audit.verdict.substring(0, 50)}...`);
+
+            // Save Result
+            await prisma.arenaRun.update({
+                where: { id: pendingRun.id },
+                data: {
+                    status: audit.stability_score > 80 ? 'PASS' : 'FAIL', // Simple threshold logic
+                    stability_score: audit.stability_score,
+                    hallucination_detected: audit.critical_failures.length > 0,
+                    // raw_logs: JSON.stringify({...pendingRun.raw_logs, audit_result: audit}) // Optionally append result
+                }
+            });
+
+        } catch (e) {
+            console.error("Loop Error:", e);
+            await new Promise(r => setTimeout(r, 5000));
+        }
+    }
 }
 
 runAuditor();

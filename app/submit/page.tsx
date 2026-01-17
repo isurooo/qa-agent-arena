@@ -2,6 +2,8 @@
 
 import { submitRun } from '@/app/actions';
 
+export const runtime = 'edge';
+
 export default function SubmitPage() {
     return (
         <div className="flex flex-col items-center justify-center min-h-screen p-8">

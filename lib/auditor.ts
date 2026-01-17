@@ -20,7 +20,7 @@ async function generateWithRetry(model: any, prompt: string, retries = 3): Promi
             // Check for 429 (Quota Exceeded)
             if (error.status === 429 && i < retries - 1) {
                 console.log(`⚠️ Quota exceeded (Attempt ${i + 1}/${retries}).`);
-                let delay = 2000 * (i + 1);
+                const delay = 2000 * (i + 1);
                 await new Promise(resolve => setTimeout(resolve, delay));
                 continue;
             }
@@ -28,9 +28,7 @@ async function generateWithRetry(model: any, prompt: string, retries = 3): Promi
         }
     }
     throw new Error("Max retries exceeded");
-}
-
-export async function auditLog(toolLog: string, context: string): Promise<AuditResult> {
+} export async function auditLog(toolLog: string, context: string): Promise<AuditResult> {
     // Switching to 2.5 Flash as 2.0 has quota limits
     const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 

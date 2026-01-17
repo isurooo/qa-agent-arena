@@ -41,12 +41,9 @@ export default async function ArenaPage() {
     // Since we didn't save the full "verdict" string to a column in the schema yet (Wait, did we?),
     // We'll synthesise the verdict based on the score. 
 
-    const verdict = latestRun.stability_score > 80
-        ? "The tool demonstrated high resilience."
-        : "Significant instability detected. Self-healing mechanisms failed to compensate for DOM shifts.";
-
-    // Parse the JSON logs safely
-    // const auditData: any = {};
+    // const verdict = latestRun.stability_score > 80
+    //    ? "The tool demonstrated high resilience."
+    //    : "Significant instability detected. Self-healing mechanisms failed to compensate for DOM shifts.";
 
     return (
         <div className="bg-background w-full">

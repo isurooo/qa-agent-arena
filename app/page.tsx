@@ -15,8 +15,8 @@ export default function Home() {
           </div>
 
           <div className="flex flex-wrap justify-center gap-4">
-            <Button text="Primary Action" onClick={() => alert('Primary Action Clicked')} type="primary" />
-            <Button text="Secondary Action" onClick={() => alert('Secondary Action Clicked')} type="secondary" />
+            <Button text="Live Dashboard" onClick={() => window.location.href = '/arena'} type="secondary" />
+            <Button text="Submit Agent" onClick={() => window.location.href = '/submit'} type="primary" />
           </div>
         </div>
       </div>

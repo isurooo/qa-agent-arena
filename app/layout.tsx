@@ -9,6 +9,9 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "QA³ Agent Arena",
   description: "Benchmarking the next generation of AI Agents",
+  icons: {
+    icon: '/icon.svg',
+  },
 };
 
 export default function RootLayout({

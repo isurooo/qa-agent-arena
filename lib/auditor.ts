@@ -28,10 +28,30 @@ function fallbackAudit(log: string): AuditResult {
     const hasError = log.includes("[ERROR]") || log.includes("Exception");
 
     // Hallucination Check: success claimed without details
-    // Must have "found element" or "validating" or "verifying" AND finding something
-    // The Scenario 2 log has "Verifying" but not "Found".
-    const hasEvidence = log.toLowerCase().includes("found element") || log.includes("Validating") || log.includes("Verifying") || log.includes("URL changed");
-    const isHallucination = log.includes("Fast-Clicker-Bot") || (isSuccess && !hasHealing && !hasEvidence);
+    // "Verifying" or "Validating" alone are claims, not proof.
+    // Proof requires: "found element", "url changed", "confidence:", "selector", "scanned".
+
+    const evidenceKeywords = [
+        "found element",
+        "url changed",
+        "confidence:",
+        "confidence :", // Handle spacing variations
+        "selector",
+        "scanned dom",
+        "scanning dom",
+        "#", // Most IDs start with #, good proxy for selectors
+        "." // Classes
+    ];
+
+    const lowerLog = log.toLowerCase();
+    const hasEvidence = evidenceKeywords.some(keyword => lowerLog.includes(keyword)) || (log.includes("Order ID") && log.includes("/confirmation"));
+
+    // We removed the hardcoded "Fast-Clicker-Bot" check to prove the rules work generally.
+    const isHallucination = (isSuccess && !hasHealing && !hasEvidence);
+
+    // Additional Hallucination Sign: "Click" followed immediately by "Success" without wait/find
+    // Simple heuristic: If log is short and happy path but verification is missing.
+    // (Handled by !hasEvidence check above)
 
     const isCritical = log.includes("[CRITICAL]") || log.includes("No recovery possible");
 

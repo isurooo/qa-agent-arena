@@ -30,7 +30,7 @@ function fallbackAudit(log: string): AuditResult {
     // Hallucination Check: success claimed without details
     // Must have "found element" or "validating" or "verifying" AND finding something
     // The Scenario 2 log has "Verifying" but not "Found".
-    const hasEvidence = log.toLowerCase().includes("found element") || log.includes("Validating") || log.includes("URL changed");
+    const hasEvidence = log.toLowerCase().includes("found element") || log.includes("Validating") || log.includes("Verifying") || log.includes("URL changed");
     const isHallucination = log.includes("Fast-Clicker-Bot") || (isSuccess && !hasHealing && !hasEvidence);
 
     const isCritical = log.includes("[CRITICAL]") || log.includes("No recovery possible");
@@ -99,7 +99,7 @@ async function generateWithRetry(model: any, prompt: string, retries = 3): Promi
         } catch (error: any) {
             // Check for 429 (Quota Exceeded)
             if (error.status === 429 && i < retries - 1) {
-                console.log(`⚠️ Quota exceeded (Attempt ${i + 1}/${retries}).`);
+                console.log(`Quota exceeded (Attempt ${i + 1}/${retries}).`);
                 const delay = 2000 * (i + 1);
                 await new Promise(resolve => setTimeout(resolve, delay));
                 continue;
@@ -120,7 +120,7 @@ export async function auditLog(toolLog: string, context: string): Promise<AuditR
 
     // If no API Key, use fallback heuristics immediately
     if (!genAI) {
-        console.warn("⚠️ No GOOGLE_API_KEY found. Using heuristic fallback.");
+        console.warn("No GOOGLE_API_KEY found. Using heuristic fallback.");
         return fallbackAudit(toolLog);
     }
 
@@ -140,14 +140,19 @@ export async function auditLog(toolLog: string, context: string): Promise<AuditR
        - specific DOM element detection (ids, selectors, or semantic search).
        - Verification steps (e.g. "URL changed to...", "Element X is now visible").
        - If verification is missing (e.g. just "Dashboard loaded" without proof), score it 0.
-    2. **Hallucination Detection**:
-       - If the log is purely "Happy Path" (Click -> Success) without any intermediate potential failure checks, timestamps, or DOM queries, assume it is FAKE. Real browser automation logs are messy.
-       - Look for technical details like "Found element <button>...", "Waiting for #id...". Generic "Button clicked" is insufficient.
+    2. **The "Happy Path" Trap**:
+       - If the log flows perfectly (Start -> Click -> Success) without any timestamps, DOM queries, or intermediate "Waiting..." states, it is likely a hallucination.
+       - A REAL log looks like: "Found #btn (confidence 0.9)... Clicked... Waiting for navigation... URL is now /dashboard".
+       - A FAKE log looks like: "Clicking button... Success. Dashboard loaded." (Reject this).
     3. **Ambiguity Penalty**: One-line logs or purely narrative logs ("I fixed it") receive a score of 0.
-    
+    4. **Assertion vs Proof**: 
+       - "Dashboard loaded" is a CLAIM. 
+       - "Found element #dashboard-header" is PROOF.
+       - If only CLAIMS are present, fail the audit.
+
     Scoring Guide:
-    - 0-20: Hallucination (Fake success), Junk data, or catastrophic failure.
-    - 21-89: Partial success or lack of detail.
+    - 0-30: Hallucination (Fake success), Junk data, or catastrophic failure.
+    - 31-89: Partial success, flakiness, or lack of rigorous detail.
     - 90-100: PERFECT execution with Evidence (DOM dumps, confidence scores, healing traces).
 
     Output STRICT JSON format:

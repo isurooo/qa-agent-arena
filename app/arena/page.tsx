@@ -2,6 +2,7 @@ import ComparisonSimple from '@/components/ComparisonSimple';
 import { prisma } from '@/lib/db';
 
 export const dynamic = 'force-dynamic'; // Ensure fresh data on every request
+export const runtime = 'edge'; // Cloudflare Requirement
 
 export default async function ArenaPage() {
     // Fetch the latest "completed" (PASS or FAIL) run from the DB

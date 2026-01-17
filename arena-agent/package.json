@@ -4,11 +4,14 @@
     "description": "The backend agent service for QA Agent Arena",
     "main": "auditor.ts",
     "scripts": {
-        "audit": "ts-node auditor.ts"
+        "audit": "ts-node auditor.ts",
+        "scout": "ts-node scout.ts"
     },
     "dependencies": {
         "@google/generative-ai": "^0.24.1",
         "@prisma/client": "^5.22.0",
+        "axios": "^1.13.2",
+        "cheerio": "^1.1.2",
         "dotenv": "^16.4.5"
     },
     "devDependencies": {

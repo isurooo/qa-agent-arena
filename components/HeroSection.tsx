@@ -37,4 +37,4 @@ const HeroSection: React.FC = () => {
     );
 };
 
-export default Footer;
+export default HeroSection;

@@ -1,0 +1,18 @@
+{
+  "runtime": "edge",
+  "name": "arena",
+  "deploymentTarget": "v8-worker",
+  "entrypoint": "index.js",
+  "assets": [],
+  "framework": {
+    "slug": "nextjs",
+    "version": "15.0.0"
+  },
+  "environment": {
+    "__NEXT_BUILD_ID": "soI9dqw9Z_bRWpX3f1z_7",
+    "NEXT_SERVER_ACTIONS_ENCRYPTION_KEY": "GoISPEezlp5MEp08GxL3GiTcKGI4F7CvQ+nUckkiP4Q=",
+    "__NEXT_PREVIEW_MODE_ID": "cd9d2861ceb020c016e4c6c40b4710d1",
+    "__NEXT_PREVIEW_MODE_ENCRYPTION_KEY": "429db7718093103d118240c69ab3f505647ad87c28bc7ce40e4bc3a52fba25ae",
+    "__NEXT_PREVIEW_MODE_SIGNING_KEY": "eb079e71e8d7dbbccc28a5f7122a5977a27249c23636dfc5e06654b281cbb6d9"
+  }
+}

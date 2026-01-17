@@ -69,13 +69,26 @@ export async function submitRun(formData: FormData) {
             }
         });
 
+        // Redirect with params
+        const params = new URLSearchParams();
+        params.set('agent', toolName);
+        params.set('score', audit.stability_score.toString());
+        params.set('status', audit.stability_score > 80 ? 'PASS' : 'FAIL');
+        params.set('hallucination', (audit.critical_failures.length > 0).toString());
+        redirect(`/arena?${params.toString()}`);
+
     } catch (e) {
         console.warn("⚠️ Database write failed (Edge Mode). Using mock processing path.", e);
         // For demo purposes, we still run the AI audit so the user feels the delay!
         const context = `Scenario: User Submission Audit\nDifficulty: HARD\nNote: This is a user-submitted log for immediate analysis.`;
-        await auditLog(logs, context); // Run audit but don't save
-    }
+        const audit = await auditLog(logs, context); // Run audit
 
-    // Redirect to the Arena to see it processed
-    redirect('/arena');
+        // Redirect with params even in failure mode
+        const params = new URLSearchParams();
+        params.set('agent', toolName);
+        params.set('score', audit.stability_score.toString());
+        params.set('status', audit.stability_score > 80 ? 'PASS' : 'FAIL');
+        params.set('hallucination', (audit.critical_failures.length > 0).toString());
+        redirect(`/arena?${params.toString()}`);
+    }
 }

@@ -4,32 +4,57 @@ import { prisma } from '@/lib/db';
 export const dynamic = 'force-dynamic'; // Ensure fresh data on every request
 export const runtime = 'edge'; // Cloudflare Requirement
 
-export default async function ArenaPage() {
+// Define props for Next.js 15+ Page
+interface PageProps {
+    searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}
+
+export default async function ArenaPage({ searchParams }: PageProps) {
+    const params = await searchParams;
     let latestRun;
 
-    try {
-        // Fetch the latest "completed" (PASS or FAIL) run from the DB
-        latestRun = await prisma.arenaRun.findFirst({
-            where: {
-                status: { in: ['PASS', 'FAIL'] },
-                stability_score: { gt: 0 } // Ensure it's a real run
-            },
-            orderBy: { createdAt: 'desc' },
-            include: { tool: true }
-        });
-    } catch (e) {
-        console.warn("⚠️ Database connection failed (Running in Edge Mode). Switching to Mock Data.");
-        // Mock Data Fallback for Live Demo
+    // 1. Priority: Check URL Params (Run processed via Edge action with DB failure)
+    if (params?.agent) {
         latestRun = {
-            id: 999,
-            tool: { name: "Agent Zero (Demo)", version: "2.5.0", url: "", category: "AGENTIC" },
-            status: "PASS",
-            stability_score: 95,
-            hallucination_detected: false,
+            id: 888, // Temp ID
+            tool: {
+                name: typeof params.agent === 'string' ? params.agent : params.agent[0],
+                version: "0.1",
+                url: "https://agent-arena-submission.demo",
+                category: "AGENTIC"
+            },
+            status: (params.status === 'PASS' ? 'PASS' : 'FAIL') as "PASS" | "FAIL",
+            stability_score: parseInt(typeof params.score === 'string' ? params.score : "0"),
+            hallucination_detected: params.hallucination === 'true',
             video_url: "",
             createdAt: new Date(),
             benchmarkId: 1
         };
+    } else {
+        try {
+            // 2. Fallback: Fetch from Database
+            latestRun = await prisma.arenaRun.findFirst({
+                where: {
+                    status: { in: ['PASS', 'FAIL'] },
+                    stability_score: { gt: 0 } // Ensure it's a real run
+                },
+                orderBy: { createdAt: 'desc' },
+                include: { tool: true }
+            });
+        } catch (e) {
+            console.warn("⚠️ Database connection failed (Running in Edge Mode). Switching to Mock Data.");
+            // 3. Fallback: Mock Data for Demo (if DB fails and no params)
+            latestRun = {
+                id: 999,
+                tool: { name: "Agent Zero (Demo)", version: "2.5.0", url: "", category: "AGENTIC" },
+                status: "PASS",
+                stability_score: 95,
+                hallucination_detected: false,
+                video_url: "",
+                createdAt: new Date(),
+                benchmarkId: 1
+            };
+        }
     }
 
     // If no real data, use a fallback specifically marked as "Waiting for Data"

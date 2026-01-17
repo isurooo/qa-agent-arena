@@ -13,6 +13,16 @@ export interface AuditResult {
 
 // Simple heuristic fallback when AI is unavailable
 function fallbackAudit(log: string): AuditResult {
+    // 0. Detect Low Effort Junk (Short Input)
+    if (log.length < 50 || log.trim() === "1") {
+        return {
+            stability_score: 0,
+            healing_factor: "Invalid Input",
+            critical_failures: ["Input too short", "Logs appear meaningless"],
+            verdict: "The submission was rejected as invalid junk data."
+        };
+    }
+
     const isSuccess = log.includes("[SUCCESS]") || log.includes("Test Passed");
     const hasHealing = log.includes("healing") || log.includes("recovered") || log.includes("recovery");
     const hasError = log.includes("[ERROR]") || log.includes("Exception");
@@ -105,8 +115,8 @@ export async function auditLog(toolLog: string, context: string): Promise<AuditR
     const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
     const prompt = `
-    You are "The Auditor", a rigorous QA technical judge.
-    Analyze the following execution log from an AI testing agent against the known application context.
+    You are "The Auditor", a rigorous QA technical judge. 
+    Review the logs with extreme skepticism. Your goal is to expose fake or low-quality agents.
 
     Application Context:
     ${context}
@@ -114,13 +124,15 @@ export async function auditLog(toolLog: string, context: string): Promise<AuditR
     Execution Log:
     ${toolLog}
 
-    Your task:
-    1. Parse the log for 'Retry' attempts and 'Self-healing' actions.
-    2. Detect if the agent 'hallucinated' a success (e.g., clicking a button that doesn't exist).
-    3. Assign a Stability Score (0-100).
-    4. Provide a summarized healing factor (how well did it recover?).
-    5. List critical failures if any.
-    6. Write a cynical, technical verdict.
+    Analysis Rules:
+    1. **Hallucination Check**: If the log claims success (e.g. "Test Passed", "Button Clicked") but does NOT show evidence of *how* it found the element (selectors, DOM search, confidence scores), flag it as a Hallucination.
+    2. **Proof of Work**: Usage of "magic" steps like "[ACTION] Clicked" without a preceding "[INFO] Found element..." is a Failure.
+    3. **Reality Check**: Positive sentiment in logs ("Success", "Passed") does NOT mean the agent actually succeeded. Look for technical verification (URL changes, DOM updates).
+    
+    Scoring Guide:
+    - 90-100: Robust execution, self-healing triggered and succeeded, clear evidence.
+    - 50-89: passed but flaky or lacking detail.
+    - 0-49: Failed, crashed, or Hallucinated (fake success).
 
     Output STRICT JSON format:
     {

@@ -1,7 +1,27 @@
+# Dependencies
 node_modules
+.pnp
+.pnp.js
+
+# Testing
+.coverage
+.env.test
+
+# Next.js
 .next/
+out/
 build/
+
+# Production
+.vercel
+
+# Misc
+.DS_Store
+*.pem
+
+# Environment Variables
 .env
 .env.local
-.DS_Store
-out/
+.env.development.local
+.env.test.local
+.env.production.local

@@ -58,6 +58,14 @@ export async function submitRun(formData: FormData) {
         // START AUDIT
         const audit = await auditLog(logs, context);
         console.log(`Audit complete. Score: ${audit.stability_score}`);
+        console.log(`Verdict: ${audit.verdict}`);
+        console.log(`Critical Failures:`, audit.critical_failures);
+
+        // Determine if this is a hallucination (not just any failure)
+        const isHallucination = audit.critical_failures.some(f =>
+            f.toLowerCase().includes('hallucin') ||
+            f.toLowerCase().includes('verification missing')
+        );
 
         // 5. Update Record
         await prisma.arenaRun.update({
@@ -65,7 +73,7 @@ export async function submitRun(formData: FormData) {
             data: {
                 status: audit.stability_score > 80 ? 'PASS' : 'FAIL',
                 stability_score: audit.stability_score,
-                hallucination_detected: audit.critical_failures.length > 0,
+                hallucination_detected: isHallucination,
             }
         });
 
@@ -74,7 +82,7 @@ export async function submitRun(formData: FormData) {
         params.set('agent', toolName);
         params.set('score', audit.stability_score.toString());
         params.set('status', audit.stability_score > 80 ? 'PASS' : 'FAIL');
-        params.set('hallucination', (audit.critical_failures.length > 0).toString());
+        params.set('hallucination', isHallucination.toString());
         redirect(`/arena?${params.toString()}`);
 
     } catch (e) {
@@ -83,12 +91,22 @@ export async function submitRun(formData: FormData) {
         const context = `Scenario: User Submission Audit\nDifficulty: HARD\nNote: This is a user-submitted log for immediate analysis.`;
         const audit = await auditLog(logs, context); // Run audit
 
+        console.log(`[FALLBACK] Audit complete. Score: ${audit.stability_score}`);
+        console.log(`[FALLBACK] Verdict: ${audit.verdict}`);
+        console.log(`[FALLBACK] Critical Failures:`, audit.critical_failures);
+
+        // Determine if this is a hallucination (not just any failure)
+        const isHallucination = audit.critical_failures.some(f =>
+            f.toLowerCase().includes('hallucin') ||
+            f.toLowerCase().includes('verification missing')
+        );
+
         // Redirect with params even in failure mode
         const params = new URLSearchParams();
         params.set('agent', toolName);
         params.set('score', audit.stability_score.toString());
         params.set('status', audit.stability_score > 80 ? 'PASS' : 'FAIL');
-        params.set('hallucination', (audit.critical_failures.length > 0).toString());
+        params.set('hallucination', isHallucination.toString());
         redirect(`/arena?${params.toString()}`);
     }
 }

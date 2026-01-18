@@ -1,8 +1,8 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-// Initialize carefully to allow fallback if key is missing
-const apiKey = process.env.GOOGLE_API_KEY;
-const genAI = apiKey ? new GoogleGenerativeAI(apiKey) : null;
+// Remove top-level init
+// const apiKey = process.env.GOOGLE_API_KEY;
+// const genAI = apiKey ? new GoogleGenerativeAI(apiKey) : null;
 
 export interface AuditResult {
     stability_score: number;
@@ -136,6 +136,10 @@ export async function auditLog(toolLog: string, context: string): Promise<AuditR
         console.warn(" Log too short or malformed. Using heuristic fallback.");
         return fallbackAudit(toolLog);
     }
+
+    // Initialize AI Client inside the function to ensure we capture the Runtime Env Var (Cloudflare)
+    const apiKey = process.env.GOOGLE_API_KEY;
+    const genAI = apiKey ? new GoogleGenerativeAI(apiKey) : null;
 
     // If no API Key, use fallback heuristics immediately
     if (!genAI) {
